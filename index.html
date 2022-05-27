@@ -13,16 +13,18 @@
 
       <div id="app">
           
-         <div v-if="state == 0">
+         <div v-if="logado == 0">
             <h2>Olá, digite seu nome de usuário: </h2>
-            <form @submit.prevent="setaNomeUsuario">
+            <form @submit.prevent="setaNomeUsuario" class="formulario">
                <input type="text" placeholder="Seu usuário" v-model:value="usuario">
                <input type="submit" value="Entrar">
             </form>
-            <button @click="continuarSemUsuario">Entrar como convidado</button>
          </div>
 
-         <div v-if="state == 1">
+         <div v-if="logado == 1">
+            <div v-for="usuario in usuarios">
+               <p> {{ usuario }}</p>
+            </div>
             <ul id="chatbox">
                <li v-for="mensagem in mensagens">
                   <b>{{ mensagem.usuario }}:</b> {{ mensagem.mensagem }}
@@ -45,7 +47,8 @@
                 mensagem: '',
                 mensagens: [],
                 usuario: '',
-                state: 0
+                usuarios: [],
+                logado: 0,
             },
             methods: {
                 enviarMensagem: function () {
@@ -55,15 +58,11 @@
             setaNomeUsuario: function() {
                 socket.emit('join', this.usuario);
                 this.usuario = '';
-                this.state = 1;
-            },
-            continuarSemUsuario: function () {
-                socket.emit('join', null);
-                this.state = 1;
-            }
+                this.logado = 1;
+            },  
             },
             created: function () {
-                socket = io();
+               socket = io();
             }, 
             mounted: function () {
                 socket.on('mensagem', function (mensagem){ //amontoando mensagens
@@ -73,8 +72,12 @@
                         messageBox.scrollTop = messageBox.scrollHeight;
                     })
                 })
+
+                socket.on('users', function (usuarios){
+                   app.usuarios.push(usuarios)
+                })
             }
         }); 
-      </script>
+      </script>   
    </body>
 </html>
