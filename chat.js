@@ -21,12 +21,20 @@ io.on('connection', (socket) => {
                     io.emit('users', socket.usuario ) //emitindo usuarios
                 }))
             }
+
+            usuarios = [socket.usuario]
         
-            const usuarios = [socket.usuario]
-            
             imprimir(usuarios)
-        } 
+        }
         socket.broadcast.emit('mensagem', { usuario: 'servidor', 'mensagem': socket.usuario + ' entrou no chat!' } )
+    })
+
+    socket.on('jointo', (destinatario, usuarios) => {
+        usuarios.forEach(user => {
+            if(user == socket.usuario){
+                io.to(socket.id).emit('newUser');
+            }
+        })
     })
 
     // socket.on('disconnect', () => {

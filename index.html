@@ -5,7 +5,6 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>WebChat Vue</title>
-      <link rel="stylesheet" href="/style/style.css">
    </head>
    <body>
 
@@ -23,17 +22,11 @@
 
          <div v-if="logado == 1">
             <div v-for="usuario in usuarios">
-               <p> {{ usuario }}</p>
+               <form @submit.prevent="conversarCom" class="formulario">
+                  <button type="submit"><input type="hidden" v-model:value="usuario">{{ usuario }}</button>
+               </form>
             </div>
-            <ul id="chatbox">
-               <li v-for="mensagem in mensagens">
-                  <b>{{ mensagem.usuario }}:</b> {{ mensagem.mensagem }}
-               </li>
-            </ul>
-            <form @submit.prevent="enviarMensagem">
-               <input type="text" placeholder="Digite sua mensagem aqui!" v-model:value="mensagem" />
-               <input type="submit" value="Enviar"/>
-            </form>
+            
          </div>
       </div>
 
@@ -49,6 +42,7 @@
                 usuario: '',
                 usuarios: [],
                 logado: 0,
+                state: 0,
             },
             methods: {
                 enviarMensagem: function () {
@@ -57,9 +51,13 @@
             },
             setaNomeUsuario: function() {
                 socket.emit('join', this.usuario);
-                this.usuario = '';
                 this.logado = 1;
             },  
+            conversarCom: function (destinatario) {
+               console.log(destinatario)
+               socket.emit('jointo', destinatario, this.usuarios)
+               this.state = 1;
+            },
             },
             created: function () {
                socket = io();
